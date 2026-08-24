@@ -1,0 +1,93 @@
+project:
+  name: InferBench
+  version: "0.2"
+
+mode: model_comparison
+
+providers:
+  - name: ollama
+    model: qwen2.5:3b
+    base_url: http://localhost:11434
+
+  - name: openai
+    model: gpt-4o-mini
+    api_key_env: OPENAI_API_KEY
+    pricing:
+      input_per_1m_tokens: 0.15
+      output_per_1m_tokens: 0.60
+      currency: USD
+
+  - name: gemini
+    model: gemini-2.5-flash
+    api_key_env: GEMINI_API_KEY
+    pricing:
+      input_per_1m_tokens: 0.075
+      output_per_1m_tokens: 0.30
+      currency: USD
+
+  - name: anthropic
+    model: claude-3-5-sonnet-20241022
+    api_key_env: ANTHROPIC_API_KEY
+    pricing:
+      input_per_1m_tokens: 3.00
+      output_per_1m_tokens: 15.00
+      currency: USD
+
+  - name: grok
+    model: grok-2-latest
+    api_key_env: XAI_API_KEY
+
+  - name: huggingface
+    model: meta-llama/Llama-3.2-3B-Instruct
+    api_key_env: HF_TOKEN
+
+  - name: openrouter
+    model: meta-llama/llama-3.3-70b-instruct
+    api_key_env: OPENROUTER_API_KEY
+
+  - name: custom
+    type: openai_compatible
+    base_url: http://localhost:8000/v1
+    model: default-model
+    api_key_env: CUSTOM_API_KEY
+
+model:
+  name: qwen2.5:3b
+  framework: ollama
+  quantization: default
+
+server:
+  base_url: http://localhost:11434
+  timeout_seconds: 300
+
+workload:
+  warmup_requests: 2
+  benchmark_requests: 5
+
+  concurrency:
+    - 1
+    - 2
+    - 4
+
+  input_tokens:
+    - 128
+    - 256
+    - 512
+
+  output_tokens:
+    - 128
+
+  seed: 42
+  workload_file: results/workload.json
+
+cost:
+  enabled: true
+  gpu_hourly_cost: 0.0
+  input_cost_per_1m_tokens: 0.0
+  output_cost_per_1m_tokens: 0.0
+
+monitoring:
+  enabled: true
+  monitor_cpu: true
+  monitor_ram: true
+  monitor_gpu: true
