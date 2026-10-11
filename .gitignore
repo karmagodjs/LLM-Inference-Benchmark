@@ -13,3 +13,8 @@ build/
 env/
 venv/
 .streamlit/
+node_modules/
+.next/
+website/node_modules/
+website/.next/
+website/out/

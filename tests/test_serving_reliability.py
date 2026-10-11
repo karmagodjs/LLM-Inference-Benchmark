@@ -38,18 +38,20 @@ def test_huggingface_dedicated_endpoint_support():
         assert kwargs['json']['parameters']['max_new_tokens'] == 32
 
 def test_system_monitor_continuous_sampling():
-    monitor = SystemMonitor(interval_seconds=0.02)
-    monitor.start()
-    import time
-    time.sleep(0.1)
-    stats = monitor.stop()
-    assert stats['samples_count'] >= 2
-    assert 'cpu_percent' in stats
-    assert 'cpu_percent_peak' in stats
-    assert 'ram_used_gb' in stats
-    assert 'ram_used_gb_peak' in stats
-    assert stats['cpu_percent_peak'] >= stats['cpu_percent']
-    assert stats['ram_used_gb_peak'] >= stats['ram_used_gb']
+    dummy_gpu = {'gpu_available': False, 'gpu_name': None, 'gpu_utilization': None, 'gpu_memory_used_mb': None, 'gpu_memory_total_mb': None, 'gpu_power_watts': None}
+    with patch('benchmark.system_metrics.get_gpu_metrics', return_value=dummy_gpu):
+        monitor = SystemMonitor(interval_seconds=0.02)
+        monitor.start()
+        import time
+        time.sleep(0.1)
+        stats = monitor.stop()
+        assert stats['samples_count'] >= 2
+        assert 'cpu_percent' in stats
+        assert 'cpu_percent_peak' in stats
+        assert 'ram_used_gb' in stats
+        assert 'ram_used_gb_peak' in stats
+        assert stats['cpu_percent_peak'] >= stats['cpu_percent']
+        assert stats['ram_used_gb_peak'] >= stats['ram_used_gb']
 
 def test_gpu_metrics_nvidia_smi_parsing():
     mock_nvidia_out = 'NVIDIA GeForce RTX 4090, 78.5, 4520, 24564, 215.3\n'
